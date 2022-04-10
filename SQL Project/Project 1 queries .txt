@@ -1,0 +1,67 @@
+/* Query 1 - used to get the highest 10 albums purchased / listened to. */
+
+SELECT a.Title Album_name,COUNT(c.CustomerId) NUM_lis
+FROM Album a
+JOIN Track t
+ON t.AlbumId = a.AlbumId
+JOIN InvoiceLine Inv
+ON Inv.TrackId = t.TrackId
+JOIN Invoice i
+ON Inv.InvoiceId = i.InvoiceId
+JOIN Customer c
+ON c.CustomerId = i.CustomerId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10;
+
+
+/* Query 2 - used to get the most preferred media type */
+
+SELECT m.Name media_type_name, SUM(il.Quantity) qty
+FROM MediaType m
+JOIN Track t
+ON t.MediaTypeId = m.MediaTypeId
+JOIN InvoiceLine il
+ON il.TrackId = t.TrackId
+GROUP BY 1
+ORDER BY 2  DESC;
+
+
+/* Query 3 - used to determines the customer that has spent the most on music for each country */
+
+WITH T1 AS(SELECT i.BillingCountry country, c.CustomerId,sum(i.total) total_monay
+            FROM Customer c
+			JOIN Invoice i 
+			on i.CustomerId = c.CustomerId
+			GROUP BY 1,2)
+SELECT T1.* FROM T1
+LEFT JOIN (SELECT country, CustomerId,MAX(total_monay) total_monay
+            FROM T1
+			GROUP BY country) T2
+ON T1.country = T2.country 
+WHERE t1.total_monay = t2.total_monay
+ORDER By total_monay DESC
+
+
+/* Query 4 -  used to determines the artists who have written the most rock music in our dataset */
+
+SELECT a.Name, Count(*) songs
+FROM Artist a
+JOIN Album al
+ON al.ArtistId = a.ArtistId
+JOIN Track t
+ON t.AlbumId = al.AlbumId
+JOIN Genre g
+ON t.GenreId = g.GenreId
+WHERE g.Name = 'Rock'
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10
+
+
+
+
+
+
+
+
